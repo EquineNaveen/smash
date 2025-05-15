@@ -1,6 +1,8 @@
 import streamlit as st
 import base64
 import os
+import hashlib
+import time
 
 # --- Page Configuration ---
 st.set_page_config(page_title="Home - Gyaan Apps", layout="wide")
@@ -193,10 +195,22 @@ st.markdown("<h1 style='text-align: center;'>Gyaan Apps</h1>", unsafe_allow_html
 # Get username from session state and display it
 username = st.session_state.get('user', '')
 
+# Add this function to generate a secure token
+def generate_user_token(username):
+    """Generate a secure token for user authentication."""
+    # Simple secret key - in production, use a proper environment variable
+    secret_key = "GYAAN_SECRET_KEY_2025"
+    # Current timestamp rounded to the nearest hour for token expiration
+    timestamp = str(int(time.time() // 3600))
+    # Combine username, timestamp and secret to create token
+    token_string = f"{username}:{timestamp}:{secret_key}"
+    # Create a hash from the token string
+    token = hashlib.sha256(token_string.encode()).hexdigest()
+    return token, timestamp
 
 # --- App Cards ---
 cards = [
-    {"name": "Coder", "img": "artifacts/1.jpg", "link": "http://192.168.31.13:8502"},
+    {"name": "Coder", "img": "artifacts/1.jpg", "link": "http://192.168.31.13:8503"},
     {"name": "Document", "img": "artifacts/2.jpg", "link": "#"},
     {"name": "Meeting", "img": "artifacts/3.jpg", "link": "#"},
     {"name": "Admin", "img": "artifacts/4.jpg", "link": "admin-login.html"},
@@ -231,9 +245,12 @@ for i, card in enumerate(cards):
         # Add username to links that start with http
         link = card['link']
         if link.startswith("http"):
-            # Properly format the URL with username parameter
+            # Generate token for authenticated access
+            token, timestamp = generate_user_token(username) if username else ("", "")
+            # Properly format the URL with username parameter and token
             separator = "&" if "?" in link else "?"
-            link = f"{link}{separator}user={username}" if username else link
+            if username:
+                link = f"{link}{separator}user={username}&token={token}&ts={timestamp}"
             
         # Debug information to verify link construction (can be removed in production)
         st.markdown(f"<div style='display:none;'>{link}</div>", unsafe_allow_html=True)

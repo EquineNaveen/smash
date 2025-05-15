@@ -7,6 +7,8 @@ import sys
 import os
 from pathlib import Path
 from urllib.parse import parse_qs
+import hashlib
+import time
 
 # Fix the import by adding the parent directory to the path
 parent_dir = str(Path(__file__).parent.parent.absolute())
@@ -14,16 +16,48 @@ if parent_dir not in sys.path:
     sys.path.append(parent_dir)
 
 # Now import the function from gyancoder
-from gyancoder import get_coding_response
+# from gyancoder import get_coding_response
 
 import json
 from datetime import datetime
 
-# Get username from URL parameter - updated to use non-experimental API
-def get_username_from_url():
+# Token validation function
+def validate_user_token(username, token, timestamp):
+    """Validate the token received from apps.py."""
+    if not all([username, token, timestamp]):
+        return False
+    
+    try:
+        # Secret key should match the one in apps.py
+        secret_key = "GYAAN_SECRET_KEY_2023"
+        # Check if token is expired (more than 2 hours old)
+        current_hour = int(time.time() // 3600)
+        token_hour = int(timestamp)
+        if current_hour - token_hour > 2:  # 2-hour expiration
+            return False
+            
+        # Recreate the token for verification
+        token_string = f"{username}:{timestamp}:{secret_key}"
+        expected_token = hashlib.sha256(token_string.encode()).hexdigest()
+        
+        # Compare the received token with the expected token
+        return token == expected_token
+    except Exception:
+        return False
+
+# Get username and token from URL parameter
+def get_user_credentials_from_url():
     query_params = st.query_params
-    username = query_params.get("user", "default")
-    return username if username else "default"
+    username = query_params.get("user", "")
+    token = query_params.get("token", "")
+    timestamp = query_params.get("ts", "")
+    
+    # Validate the token
+    is_valid = validate_user_token(username, token, timestamp)
+    
+    if not is_valid:
+        return "guest"  # Return default username if validation fails
+    return username
 
 # Initialize session state variables at the very beginning
 if 'chat_history' not in st.session_state:
@@ -31,7 +65,14 @@ if 'chat_history' not in st.session_state:
 if 'current_chat_id' not in st.session_state:
     st.session_state['current_chat_id'] = None
 if 'username' not in st.session_state:
-    st.session_state['username'] = get_username_from_url()
+    st.session_state['username'] = get_user_credentials_from_url()
+if 'authenticated' not in st.session_state:
+    # Check if the user is authenticated
+    query_params = st.query_params
+    username = query_params.get("user", "")
+    token = query_params.get("token", "")
+    timestamp = query_params.get("ts", "")
+    st.session_state['authenticated'] = validate_user_token(username, token, timestamp)
 
 # Function definitions
 def get_user_chat_dir():
@@ -102,6 +143,11 @@ def delete_chat_history(chat_file):
 def get_response(user_query):
     """Send user query to gyancoder.py and get model response."""
     return get_coding_response(user_query)
+
+# Check authentication before displaying content
+if not st.session_state['authenticated']:
+    st.error("⛔ Invalid or expired authentication token. Please return to the main page and try again.")
+    st.stop()  # Stop execution if not authenticated
 
 col1, col2 = st.columns([5, 1])
 with col1:
