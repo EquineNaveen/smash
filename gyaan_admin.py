@@ -2,6 +2,50 @@ import streamlit as st
 from helper_functions.tools import local_query_generator
 import base64
 import os
+import hashlib
+import time
+from urllib.parse import parse_qs
+import re
+
+# Authentication functions
+def get_url_params():
+    """Extract URL query parameters from st.query_params"""
+    # Streamlit's query_params provides direct access to parameters without indexing
+    # They're attributes, not dictionary keys with arrays
+    query_params = st.query_params
+    user = query_params.get("user", "") if "user" in query_params else ""
+    token = query_params.get("token", "") if "token" in query_params else ""
+    timestamp = query_params.get("ts", "") if "ts" in query_params else ""
+    return user, token, timestamp
+
+def validate_token(username, token, timestamp):
+    """Validate the token matches the username and is not expired"""
+    if not username or not token or not timestamp:
+        return False
+    
+    try:
+        # Convert timestamp to int and check expiration (24 hour validity)
+        ts = int(timestamp)
+        current_ts = int(time.time() // 3600)
+        if current_ts - ts > 24:  # Token expired after 24 hours
+            return False
+            
+        # Recreate token for validation using same logic as in apps.py
+        secret_key = "GYAAN_SECRET_KEY_2025"
+        token_string = f"{username}:{timestamp}:{secret_key}"
+        expected_token = hashlib.sha256(token_string.encode()).hexdigest()
+        
+        return token == expected_token
+    except:
+        return False
+
+# Check authentication at the beginning
+user, token, timestamp = get_url_params()
+is_authenticated = validate_token(user, token, timestamp)
+
+if not is_authenticated:
+    st.error("⚠️ Authentication required. Please access this application through the main portal.")
+    st.stop()
 
 # Define some knowledge base configurations
 knowledge_bases = {
