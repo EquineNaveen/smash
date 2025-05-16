@@ -62,10 +62,68 @@ if 'submit_query' not in st.session_state:
     st.session_state['submit_query'] = False
 if 'chat_history' not in st.session_state:
     st.session_state['chat_history'] = []
+# Chat history management
+if 'conversations' not in st.session_state:
+    st.session_state['conversations'] = []
+if 'current_conversation_id' not in st.session_state:
+    st.session_state['current_conversation_id'] = None
 
 # Function to change the selected knowledge base
 def switch_kb(selected_kb):
     st.session_state['selected_kb'] = selected_kb
+
+# Function to create a new conversation
+def create_new_conversation():
+    conversation_id = str(uuid.uuid4())
+    current_date = datetime.datetime.now().strftime("%b %d")
+    
+    new_conversation = {
+        "id": conversation_id,
+        "title": "New conversation",
+        "date": current_date,
+        "messages": []
+    }
+    
+    st.session_state['conversations'].append(new_conversation)
+    st.session_state['current_conversation_id'] = conversation_id
+    st.session_state['chat_history'] = []
+    
+    return conversation_id
+
+# Function to select an existing conversation
+def select_conversation(conversation_id):
+    # Save current conversation messages
+    if st.session_state['current_conversation_id']:
+        for conv in st.session_state['conversations']:
+            if conv["id"] == st.session_state['current_conversation_id']:
+                conv["messages"] = st.session_state['chat_history']
+                break
+    
+    # Load selected conversation
+    st.session_state['current_conversation_id'] = conversation_id
+    for conv in st.session_state['conversations']:
+        if conv["id"] == conversation_id:
+            st.session_state['chat_history'] = conv["messages"]
+            break
+
+# Function to delete a conversation
+def delete_conversation(conversation_id):
+    st.session_state['conversations'] = [c for c in st.session_state['conversations'] if c["id"] != conversation_id]
+    
+    # If the deleted conversation was the current one, create a new conversation
+    if conversation_id == st.session_state['current_conversation_id']:
+        create_new_conversation()
+
+# Function to rename a conversation
+def rename_conversation(conversation_id, new_title):
+    for conv in st.session_state['conversations']:
+        if conv["id"] == conversation_id:
+            conv["title"] = new_title
+            break
+
+# Initialize with a conversation if none exists
+if not st.session_state['current_conversation_id'] and len(st.session_state['conversations']) == 0:
+    create_new_conversation()
 
 # Callback for handling input submission
 def handle_input():
@@ -167,15 +225,141 @@ st.markdown("""
     .footer-logo {
         height: 40px;
     }
+    
+    /* Chat history sidebar styling */
+    .chat-history {
+        margin-bottom: 20px;
+    }
+    
+    .history-title {
+        font-weight: bold;
+        margin-bottom: 10px;
+        font-size: 1.2em;
+    }
+    
+    .conversation-item {
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        border: 1px solid transparent;
+        position: relative;
+    }
+    
+    .conversation-item:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+    
+    .conversation-item.active {
+        border-color: #3B82F6;
+        background-color: rgba(59, 130, 246, 0.1);
+    }
+    
+    .conversation-title {
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .conversation-date {
+        font-size: 0.8em;
+        color: #666;
+        margin-top: 2px;
+    }
+    
+    .delete-btn {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 0;
+        transition: opacity 0.2s;
+        color: #666;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        padding: 0;
+    }
+    
+    .conversation-item:hover .delete-btn {
+        opacity: 1;
+    }
+    
+    .delete-btn:hover {
+        color: #f44336;
+    }
+    
+    .new-chat-btn {
+        width: 100%;
+        background-color: #3B82F6;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 15px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .new-chat-btn:hover {
+        background-color: #2563EB;
+    }
+    
+    /* Divider */
+    .section-divider {
+        border-top: 1px solid #e0e0e0;
+        margin: 15px 0;
+    }
     </style>
 """, unsafe_allow_html=True)
 
 # Sidebar with title and knowledge base buttons
-st.sidebar.title("Knowledge Bases")
-if st.sidebar.button("Administration"):
-    switch_kb("Administration")
-if st.sidebar.button("Purchase"):
-    switch_kb("Purchase")
+with st.sidebar:
+    # New Chat button - styled as a blue button
+    if st.button("➕ New chat", key="new_chat_button_blue", use_container_width=True, 
+                type="primary", help="Start a new conversation"):
+        create_new_conversation()
+    
+    # Chat History
+    st.markdown('<div class="chat-history">', unsafe_allow_html=True)
+    st.markdown('<div class="history-title">Chat History</div>', unsafe_allow_html=True)
+    
+    # List conversations
+    for i, conv in enumerate(st.session_state['conversations']):
+        is_active = conv["id"] == st.session_state['current_conversation_id']
+        
+        col1, col2 = st.columns([0.9, 0.1])
+        with col1:
+            if st.button(
+                f"{conv['title']}",
+                key=f"conv_{i}",
+                help=f"Conversation from {conv['date']}",
+                use_container_width=True
+            ):
+                select_conversation(conv["id"])
+                
+        with col2:
+            if st.button("🗑️", key=f"del_{i}", help="Delete this conversation"):
+                delete_conversation(conv["id"])
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Divider
+    st.markdown('<hr class="section-divider" />', unsafe_allow_html=True)
+    
+    # Knowledge Bases
+    st.subheader("Knowledge Bases")
+    if st.button("Administration", use_container_width=True):
+        switch_kb("Administration")
+    if st.button("Purchase", use_container_width=True):
+        switch_kb("Purchase")
 
 # Add header with Gyaan logo
 if gyaan_logo:
@@ -269,10 +453,20 @@ with chat_container:
         # Add assistant response to chat history
         st.session_state['chat_history'].append({"role": "assistant", "content": response})
         
+        # Update conversation in the conversations list
+        for conv in st.session_state['conversations']:
+            if conv["id"] == st.session_state['current_conversation_id']:
+                conv["messages"] = st.session_state['chat_history']
+                # Update title with first user message if it's still the default
+                if conv["title"] == "New conversation" and len(st.session_state['chat_history']) > 0:
+                    for msg in st.session_state['chat_history']:
+                        if msg["role"] == "user":
+                            conv["title"] = (msg["content"][:25] + "...") if len(msg["content"]) > 25 else msg["content"]
+                            break
+                break
+        
         # Reset submission flag
         st.session_state['submit_query'] = False
-
-
 
 # Add spacing before the input field
 # st.markdown("<div style='margin-bottom: 100px;'></div>", unsafe_allow_html=True)
