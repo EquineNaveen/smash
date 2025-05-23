@@ -4,6 +4,16 @@ import os
 import hashlib
 import time
 
+# --- Query Param Persistence ---
+# Use only st.query_params for getting and setting query params
+query_params = st.query_params
+if "user" in query_params and "user" not in st.session_state:
+    st.session_state["user"] = query_params["user"]
+if "token" in query_params and "token" not in st.session_state:
+    st.session_state["token"] = query_params["token"]
+if "ts" in query_params and "ts" not in st.session_state:
+    st.session_state["ts"] = query_params["ts"]
+
 # --- Page Configuration ---
 st.set_page_config(page_title="Home - Gyaan Apps", layout="wide")
 
@@ -206,6 +216,14 @@ def generate_user_token(username):
     timestamp = "STATIC"
     return token, timestamp
 
+# If username is present, ensure token and ts are also in session state and update query params
+if username:
+    token, ts = generate_user_token(username)
+    st.session_state["token"] = token
+    st.session_state["ts"] = ts
+    # Set query params so refreshes retain user, token, ts
+    st.query_params.update(user=username, token=token, ts=ts)
+
 # --- App Cards ---
 cards = [
     {"name": "Coder", "img": "artifacts/1.jpg", "link": "http://192.168.31.13:8502"},
@@ -244,11 +262,12 @@ for i, card in enumerate(cards):
         link = card['link']
         if link.startswith("http"):
             # Generate token for authenticated access
-            token, timestamp = generate_user_token(username) if username else ("", "")
+            token = st.session_state.get("token", "")
+            ts = st.session_state.get("ts", "")
             # Properly format the URL with username parameter and token
             separator = "&" if "?" in link else "?"
             if username:
-                link = f"{link}{separator}user={username}&token={token}&ts={timestamp}"
+                link = f"{link}{separator}user={username}&token={token}&ts={ts}"
             
         # Debug information to verify link construction (can be removed in production)
         st.markdown(f"<div style='display:none;'>{link}</div>", unsafe_allow_html=True)
