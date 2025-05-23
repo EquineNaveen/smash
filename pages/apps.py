@@ -198,19 +198,17 @@ username = st.session_state.get('user', '')
 # Add this function to generate a secure token
 def generate_user_token(username):
     """Generate a secure token for user authentication."""
-    # Simple secret key - in production, use a proper environment variable
     secret_key = "GYAAN_SECRET_KEY_2025"
-    # Current timestamp rounded to the nearest hour for token expiration
-    timestamp = str(int(time.time() // 3600))
-    # Combine username, timestamp and secret to create token
-    token_string = f"{username}:{timestamp}:{secret_key}"
-    # Create a hash from the token string
+    # Remove timestamp from token generation for static token
+    token_string = f"{username}:{secret_key}"
     token = hashlib.sha256(token_string.encode()).hexdigest()
+    # Still return a timestamp for compatibility, but it's not used for expiration
+    timestamp = "STATIC"
     return token, timestamp
 
 # --- App Cards ---
 cards = [
-    {"name": "Coder", "img": "artifacts/1.jpg", "link": "http://192.168.31.13:8503"},
+    {"name": "Coder", "img": "artifacts/1.jpg", "link": "http://192.168.31.13:8502"},
     {"name": "Document", "img": "artifacts/2.jpg", "link": "#"},
     {"name": "Meeting", "img": "artifacts/3.jpg", "link": "#"},
     {"name": "Admin", "img": "artifacts/4.jpg", "link": "admin-login.html"},

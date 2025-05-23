@@ -24,23 +24,14 @@ from datetime import datetime
 # Token validation function
 def validate_user_token(username, token, timestamp):
     """Validate the token received from apps.py."""
-    if not all([username, token, timestamp]):
+    if not all([username, token]):
         return False
-    
     try:
         # Secret key should match the one in apps.py
-        secret_key = "GYAAN_SECRET_KEY_2023"
-        # Check if token is expired (more than 2 hours old)
-        current_hour = int(time.time() // 3600)
-        token_hour = int(timestamp)
-        if current_hour - token_hour > 2:  # 2-hour expiration
-            return False
-            
-        # Recreate the token for verification
-        token_string = f"{username}:{timestamp}:{secret_key}"
+        secret_key = "GYAAN_SECRET_KEY_2025"
+        # Remove timestamp from token validation for static token
+        token_string = f"{username}:{secret_key}"
         expected_token = hashlib.sha256(token_string.encode()).hexdigest()
-        
-        # Compare the received token with the expected token
         return token == expected_token
     except Exception:
         return False
@@ -51,12 +42,10 @@ def get_user_credentials_from_url():
     username = query_params.get("user", "")
     token = query_params.get("token", "")
     timestamp = query_params.get("ts", "")
-    
-    # Validate the token
+    # Validate the token (timestamp is ignored)
     is_valid = validate_user_token(username, token, timestamp)
-    
     if not is_valid:
-        return "guest"  # Return default username if validation fails
+        return "guest"
     return username
 
 # Initialize session state variables at the very beginning

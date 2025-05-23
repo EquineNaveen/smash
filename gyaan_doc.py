@@ -33,32 +33,19 @@ def get_url_params():
     return user, token, timestamp
 
 def validate_token(username, token, timestamp):
-    """Validate the token matches the username and is not expired"""
-    if not username or not token or not timestamp:
+    """Validate the token matches the username"""
+    if not username or not token:
         print(f"Missing authentication parameters - user: {username}, token: {token}, timestamp: {timestamp}")
         return False
-    
     try:
-        # Convert timestamp to int and check expiration (24 hour validity)
-        ts = int(timestamp)
-        current_ts = int(time.time() // 3600)
-        
-        # Check token expiration
-        if current_ts - ts > 24:  # Token expired after 24 hours
-            print(f"Token expired - current: {current_ts}, token_ts: {ts}, diff: {current_ts - ts}")
-            return False
-            
-        # Recreate token for validation using same logic as in apps.py
+        # Remove timestamp/expiration check for static token
         secret_key = "GYAAN_SECRET_KEY_2025"
-        token_string = f"{username}:{timestamp}:{secret_key}"
+        token_string = f"{username}:{secret_key}"
         expected_token = hashlib.sha256(token_string.encode()).hexdigest()
-        
-        # Compare tokens and log results
         is_valid = token == expected_token
         print(f"Token validation - match: {is_valid}")
         print(f"Expected token: {expected_token}")
         print(f"Provided token: {token}")
-        
         return is_valid
     except Exception as e:
         print(f"Token validation error: {str(e)}")
