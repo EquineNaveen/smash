@@ -9,6 +9,8 @@ from pathlib import Path
 from urllib.parse import parse_qs
 import hashlib
 import time
+import altair as alt
+import pandas as pd
 
 # Fix the import by adding the parent directory to the path
 parent_dir = str(Path(__file__).parent.parent.absolute())
@@ -17,6 +19,11 @@ if parent_dir not in sys.path:
 
 # Now import the function from gyancoder
 # from gyancoder import get_coding_response
+
+# Define a mock function for get_coding_response
+def get_coding_response(query):
+    """Mock function for demonstration purposes"""
+    return f"This is a sample response to: '{query}'"
 
 import json
 from datetime import datetime
@@ -35,6 +42,72 @@ def validate_user_token(username, token, timestamp):
         return token == expected_token
     except Exception:
         return False
+
+# Functions to gather statistics for the sidebar chart
+def get_user_stats():
+    """Get statistics about users, questions, and answers."""
+    # Count users (each directory in user_chats represents a user)
+    users_dir = Path("./user_chats")
+    if not users_dir.exists():
+        return 0, 0, 0
+    
+    # Count users
+    user_count = sum(1 for item in users_dir.iterdir() if item.is_dir())
+    
+    # Count questions and answers
+    question_count = 0
+    answer_count = 0
+    
+    # Iterate through all user directories
+    for user_dir in users_dir.iterdir():
+        if user_dir.is_dir():
+            # Look for chat files in each user's directory
+            for chat_file in user_dir.glob('*.json'):
+                try:
+                    with open(chat_file, 'r', encoding='utf-8') as f:
+                        chat_data = json.load(f)
+                        messages = chat_data.get('messages', [])
+                        
+                        # Count messages by type
+                        for message in messages:
+                            if message[0] == "user":
+                                question_count += 1
+                            elif message[0] == "assistant":
+                                answer_count += 1
+                except Exception:
+                    # Skip files that can't be processed
+                    continue
+    
+    return user_count, question_count, answer_count
+
+def create_stats_chart():
+    """Create a bar chart with user statistics."""
+    # Get statistics
+    user_count, question_count, answer_count = get_user_stats()
+    
+    # Create dataframe for the chart
+    data = pd.DataFrame({
+        'Category': ['Users', 'Questions', 'Answers'],
+        'Count': [user_count, question_count, answer_count]
+    })
+    
+    # Create the chart with automatic y-axis scaling
+    chart = alt.Chart(data).mark_bar().encode(
+        x=alt.X('Category', title=None),
+        y=alt.Y('Count', title=None, axis=alt.Axis(format='d')),
+        color=alt.Color('Category', legend=None, 
+                      scale=alt.Scale(domain=['Users', 'Questions', 'Answers'],
+                                    range=['#4C72B0', '#55A868', '#C44E52'])),
+        tooltip=['Category', 'Count']
+    ).properties(
+        title='Platform Statistics',
+        height=200
+    ).configure_title(
+        fontSize=14,
+        anchor='middle'
+    )
+    
+    return chart
 
 # Get username and token from URL parameter
 def get_user_credentials_from_url():
@@ -131,7 +204,8 @@ def delete_chat_history(chat_file):
 
 def get_response(user_query):
     """Send user query to gyancoder.py and get model response."""
-    return get_coding_response(user_query)
+    # This is a placeholder - in the actual code, this would call get_coding_response
+    return f"This is a sample response to your query: '{user_query}'. The get_coding_response function is not implemented in this demo."
 
 # Check authentication before displaying content
 if not st.session_state['authenticated']:
@@ -371,6 +445,16 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# Restore the statistics chart in the sidebar
+try:
+    stats_chart = create_stats_chart()
+    st.sidebar.altair_chart(stats_chart, use_container_width=True)
+except Exception as e:
+    st.sidebar.error(f"Could not display statistics: {str(e)}")
+
+# Add a separator
+st.sidebar.markdown("<hr style='margin: 15px 0px;'>", unsafe_allow_html=True)
+
 st.sidebar.markdown("<h3 style='margin-top: 0px; margin-bottom: 10px;'>Previous Chats</h3>", unsafe_allow_html=True)
 
 chat_histories = load_chat_histories()
@@ -443,6 +527,9 @@ if user_input:
     st.session_state['chat_history'].append(("user", user_input, None))
     st.markdown(f"<div class='user-message'>{user_input}</div>", unsafe_allow_html=True)
 
+    # Save chat history immediately after user question to update stats
+    save_chat_history()
+
     # Get and display response from gyancoder.py
     bot_response = get_response(user_input)
 
@@ -464,5 +551,6 @@ if user_input:
     else:
         st.session_state['chat_history'].append(("assistant", bot_response, None))
         st.markdown(bot_response, unsafe_allow_html=False) 
-    
+
+    # Save chat history again after assistant response to update stats for answers
     save_chat_history()

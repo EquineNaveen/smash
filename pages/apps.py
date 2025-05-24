@@ -227,10 +227,9 @@ if username:
 # --- App Cards ---
 cards = [
     {"name": "Coder", "img": "artifacts/1.jpg", "link": "http://192.168.31.13:8502"},
-    {"name": "Document", "img": "artifacts/2.jpg", "link": "#"},
-    {"name": "Meeting", "img": "artifacts/3.jpg", "link": "#"},
-    {"name": "Admin", "img": "artifacts/4.jpg", "link": "admin-login.html"},
-    {"name": "X-ray", "img": "artifacts/5.jpg", "link": "http://192.168.31.13:8501"},
+    {"name": "Document", "img": "artifacts/doc.png", "link": "#"},
+    {"name": "Meeting", "img": "artifacts/meeting.jpg", "link": "#"},
+    {"name": "Admin", "img": "artifacts/admin.png", "link": "#"},
 ]
 
 def get_base64_image(image_path):
