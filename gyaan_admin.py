@@ -281,7 +281,7 @@ def create_stats_chart():
                                     range=['#4C72B0', '#55A868', '#C44E52'])),
         tooltip=['Category', 'Count']
     ).properties(
-        title='Platform Statistics',
+        # title='Platform Statistics',
         height=200
     ).configure_title(
         fontSize=14,
