@@ -298,8 +298,8 @@ if st.sidebar.button("Purchase"):
 
 # Add statistics chart to sidebar (move above chat history)
 st.sidebar.markdown("---")
-user_count, question_count, answer_count = get_user_stats()
-st.sidebar.altair_chart(create_stats_chart(), use_container_width=True)
+with st.sidebar.expander("📊 Platform Statistics", expanded=False):
+    st.altair_chart(create_stats_chart(), use_container_width=True)
 
 # Add chat history section to sidebar (move below statistics)
 st.sidebar.markdown("---")

@@ -227,7 +227,7 @@ if username:
 # --- App Cards ---
 cards = [
     {"name": "GYAAN CODER<br><span style='font-size:0.85em'>Gyaan Coder provides real-time answers and code solutions for user queries across any programming language.</span>", "img": "artifacts/coder.jpg", "link": "http://192.168.31.13:8502"},
-    {"name": "GYAAN DOC<br><span style='font-size:0.85em'>Gyaan Doc is an AI-powered app that lets you upload documents, get instant summaries, and ask questions based on their content.</span>", "img": "artifacts/doc.jpg", "link": "#"},
+    {"name": "GYAAN DOC<br><span style='font-size:0.85em'>Gyaan Doc is an AI-powered app that lets you upload documents, get instant summaries, and ask questions based on their content.</span>", "img": "artifacts/doc.jpg", "link": "http://192.168.31.13:8503"},
     {"name": "GYAAN MEETING<br><span style='font-size:0.85em'>Gyaan Meeting converts meeting audio into text, provides transcripts, and lets you query information directly from the conversation.</span>", "img": "artifacts/meeting.jpg", "link": "#"},
     {"name": "GYAAN ADMIN<br><span style='font-size:0.85em'>Gyaan Admin is a chatbot to streamline admin tasks and answer queries on operations, policies, and processes.</span>", "img": "artifacts/admin.png", "link": "#"},
 ]

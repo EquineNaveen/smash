@@ -446,11 +446,12 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Restore the statistics chart in the sidebar
-try:
-    stats_chart = create_stats_chart()
-    st.sidebar.altair_chart(stats_chart, use_container_width=True)
-except Exception as e:
-    st.sidebar.error(f"Could not display statistics: {str(e)}")
+with st.sidebar.expander("📊 Platform Statistics", expanded=False):
+    try:
+        stats_chart = create_stats_chart()
+        st.altair_chart(stats_chart, use_container_width=True)
+    except Exception as e:
+        st.error(f"Could not display statistics: {str(e)}")
 
 # Add a separator
 st.sidebar.markdown("<hr style='margin: 15px 0px;'>", unsafe_allow_html=True)
