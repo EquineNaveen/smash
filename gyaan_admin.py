@@ -1,11 +1,16 @@
 import streamlit as st
-from helper_functions.tools import local_query_generator
+# from helper_functions.tools import local_query_generator
 import base64
 import os
 import hashlib
 import time
 from urllib.parse import parse_qs
 import re
+from pathlib import Path
+import json
+from datetime import datetime
+import pandas as pd
+import altair as alt
 
 # Authentication functions
 def get_url_params():
@@ -54,6 +59,11 @@ if 'submit_query' not in st.session_state:
     st.session_state['submit_query'] = False
 if 'chat_history' not in st.session_state:
     st.session_state['chat_history'] = []
+# Add new session state variables for chat management
+if 'username' not in st.session_state:
+    st.session_state['username'] = user  # Use the authenticated username
+if 'current_chat_id' not in st.session_state:
+    st.session_state['current_chat_id'] = ""
 
 # Function to change the selected knowledge base
 def switch_kb(selected_kb):
@@ -162,12 +172,175 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# Define the chat history management functions before using them
+def get_user_chat_dir():
+    """Create and return the user's chat directory path based on username."""
+    username = st.session_state['username']
+    chat_dir = Path(f"./user_chats/{username}")
+    chat_dir.mkdir(parents=True, exist_ok=True)
+    return chat_dir
+
+def save_chat_history():
+    """Save current chat history to a JSON file."""
+    if not st.session_state['chat_history']:
+        return
+    
+    user_dir = get_user_chat_dir()
+    
+    # Generate a unique filename if none exists
+    if not st.session_state['current_chat_id']:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        st.session_state['current_chat_id'] = f"chat_{timestamp}.json"
+    
+    chat_file = user_dir / st.session_state['current_chat_id']
+    
+    # Format messages for saving
+    messages = st.session_state['chat_history']
+    
+    # Get the first user query as chat title
+    first_query = ""
+    for message in messages:
+        if message["role"] == "user":
+            first_query = message["content"]
+            break
+    
+    # Save chat data
+    chat_data = {
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "first_query": first_query,
+        "messages": messages,
+        "username": st.session_state['username']
+    }
+    
+    with open(chat_file, 'w', encoding='utf-8') as f:
+        json.dump(chat_data, f, ensure_ascii=False, indent=2)
+
+def load_chat_histories():
+    """Load all available chat histories for the user."""
+    user_dir = get_user_chat_dir()
+    chat_files = []
+    
+    if user_dir.exists():
+        for filepath in user_dir.glob('*.json'):
+            with open(filepath, 'r', encoding='utf-8') as f:
+                chat_data = json.load(f)
+                chat_files.append((filepath.name, chat_data))
+    
+    return sorted(chat_files, key=lambda x: x[0], reverse=True)
+
+def delete_chat_history(chat_file):
+    """Delete a specific chat history file."""
+    user_dir = get_user_chat_dir()
+    filepath = user_dir / chat_file
+    
+    if filepath.exists():
+        filepath.unlink() 
+        return True
+    return False
+
+def get_user_stats():
+    """Get statistics about users, questions, and answers."""
+    users_dir = Path("./user_chats")
+    if not users_dir.exists():
+        return 0, 0, 0
+
+    user_count = sum(1 for item in users_dir.iterdir() if item.is_dir())
+    question_count = 0
+    answer_count = 0
+
+    for user_dir in users_dir.iterdir():
+        if user_dir.is_dir():
+            for chat_file in user_dir.glob('*.json'):
+                try:
+                    with open(chat_file, 'r', encoding='utf-8') as f:
+                        chat_data = json.load(f)
+                        messages = chat_data.get('messages', [])
+                        for message in messages:
+                            # message is a dict with "role" key
+                            if message.get("role") == "user":
+                                question_count += 1
+                            elif message.get("role") == "assistant":
+                                answer_count += 1
+                except Exception:
+                    continue
+
+    return user_count, question_count, answer_count
+
+def create_stats_chart():
+    """Create a bar chart with user statistics."""
+    user_count, question_count, answer_count = get_user_stats()
+    data = pd.DataFrame({
+        'Category': ['Users', 'Questions', 'Answers'],
+        'Count': [user_count, question_count, answer_count]
+    })
+    chart = alt.Chart(data).mark_bar().encode(
+        x=alt.X('Category', title=None),
+        y=alt.Y('Count:Q', title=None, axis=alt.Axis(format='d'), scale=alt.Scale(zero=True)),
+        color=alt.Color('Category', legend=None, 
+                      scale=alt.Scale(domain=['Users', 'Questions', 'Answers'],
+                                    range=['#4C72B0', '#55A868', '#C44E52'])),
+        tooltip=['Category', 'Count']
+    ).properties(
+        title='Platform Statistics',
+        height=200
+    ).configure_title(
+        fontSize=14,
+        anchor='middle'
+    )
+    return chart
+
 # Sidebar with title and knowledge base buttons
 st.sidebar.title("Knowledge Bases")
 if st.sidebar.button("Administration"):
     switch_kb("Administration")
 if st.sidebar.button("Purchase"):
     switch_kb("Purchase")
+
+# Add statistics chart to sidebar (move above chat history)
+st.sidebar.markdown("---")
+user_count, question_count, answer_count = get_user_stats()
+st.sidebar.altair_chart(create_stats_chart(), use_container_width=True)
+
+# Add chat history section to sidebar (move below statistics)
+st.sidebar.markdown("---")
+st.sidebar.title("Chat History")
+
+# New chat button
+if st.sidebar.button("New Chat", key="new_chat"):
+    st.session_state['chat_history'] = []
+    st.session_state['current_chat_id'] = ""
+    st.rerun()
+
+# Load and display available chat histories
+chat_histories = load_chat_histories()
+if chat_histories:
+    st.sidebar.write("Previous chats:")
+    for chat_file, chat_data in chat_histories:
+        # Create a readable chat label
+        chat_title = chat_data.get("first_query", "Untitled Chat")
+        if len(chat_title) > 30:
+            chat_title = chat_title[:27] + "..."
+            
+        chat_date = chat_data.get("timestamp", "")
+        if chat_date:
+            chat_date = chat_date.split()[0]  # Just show the date part
+            
+        # Display as a clickable button with a delete option
+        col1, col2 = st.sidebar.columns([4, 1])
+        with col1:
+            if st.button(f"{chat_title}\n{chat_date}", key=f"chat_{chat_file}"):
+                st.session_state['chat_history'] = chat_data.get("messages", [])
+                st.session_state['current_chat_id'] = chat_file
+                st.rerun()
+        with col2:
+            if st.button("🗑️", key=f"del_{chat_file}"):
+                delete_chat_history(chat_file)
+                if st.session_state['current_chat_id'] == chat_file:
+                    st.session_state['chat_history'] = []
+                    st.session_state['current_chat_id'] = ""
+                st.rerun()
+else:
+    st.sidebar.write("No previous chats")
 
 # Add header with Gyaan logo
 if gyaan_logo:
@@ -204,67 +377,68 @@ with chat_container:
                 </div>
             """, unsafe_allow_html=True)
 
-    # Process the query if submitted
-    if st.session_state['submit_query']:
-        # Display user message
-        st.markdown(f"""
-            <div class="chat-message user-message">
-                <b>You:</b> {st.session_state['user_input']}
-            </div>
-        """, unsafe_allow_html=True)
-        
-        # Add user message to chat history
-        st.session_state['chat_history'].append({"role": "user", "content": st.session_state['user_input']})
-        
-        # Create a placeholder for the assistant's response
-        response_placeholder = st.empty()
-        
-        # Show thinking animation
-        response_placeholder.markdown("""
-            <div class="chat-message assistant-message">
-                <b>Assistant:</b> <div class="thinking">Thinking<span>.</span><span>.</span><span>.</span></div>
-            </div>
-            <style>
-                .thinking span {
-                    opacity: 0;
-                    animation: dots 1.5s infinite;
-                }
-                .thinking span:nth-child(1) {
-                    animation-delay: 0s;
-                }
-                .thinking span:nth-child(2) {
-                    animation-delay: 0.5s;
-                }
-                .thinking span:nth-child(3) {
-                    animation-delay: 1s;
-                }
-                @keyframes dots {
-                    0% { opacity: 0; }
-                    50% { opacity: 1; }
-                    100% { opacity: 0; }
-                }
-            </style>
-        """, unsafe_allow_html=True)
-        
-        # Initialize empty response
-        response = ""
-        
-        # Rest of your streaming code remains the same
-        for chunk in local_query_generator(query=st.session_state['user_input'], root=kb_variable):
-            response += chunk
-            # Update the message with the current response
-            response_placeholder.markdown(
-                f'<div class="chat-message assistant-message"><b>Gyaan:</b> {response}</div>',
-                unsafe_allow_html=True
-            )
-        
-        # Add assistant response to chat history
-        st.session_state['chat_history'].append({"role": "assistant", "content": response})
-        
-        # Reset submission flag
-        st.session_state['submit_query'] = False
-
-
+# Process the query if submitted
+if st.session_state['submit_query']:
+    # Display user message
+    st.markdown(f"""
+        <div class="chat-message user-message">
+            <b>You:</b> {st.session_state['user_input']}
+        </div>
+    """, unsafe_allow_html=True)
+    
+    # Add user message to chat history
+    st.session_state['chat_history'].append({"role": "user", "content": st.session_state['user_input']})
+    
+    # Create a placeholder for the assistant's response
+    response_placeholder = st.empty()
+    
+    # Show thinking animation
+    response_placeholder.markdown("""
+        <div class="chat-message assistant-message">
+            <b>Assistant:</b> <div class="thinking">Thinking<span>.</span><span>.</span><span>.</span></div>
+        </div>
+        <style>
+            .thinking span {
+                opacity: 0;
+                animation: dots 1.5s infinite;
+            }
+            .thinking span:nth-child(1) {
+                animation-delay: 0s;
+            }
+            .thinking span:nth-child(2) {
+                animation-delay: 0.5s;
+            }
+            .thinking span:nth-child(3) {
+                animation-delay: 1s;
+            }
+            @keyframes dots {
+                0% { opacity: 0; }
+                50% { opacity: 1; }
+                100% { opacity: 0; }
+            }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    # Initialize empty response
+    response = ""
+    
+    # Rest of your streaming code remains the same
+    for chunk in local_query_generator(query=st.session_state['user_input'], root=kb_variable):
+        response += chunk
+        # Update the message with the current response
+        response_placeholder.markdown(
+            f'<div class="chat-message assistant-message"><b>Gyaan:</b> {response}</div>',
+            unsafe_allow_html=True
+        )
+    
+    # Add assistant response to chat history
+    st.session_state['chat_history'].append({"role": "assistant", "content": response})
+    
+    # Save chat history after each interaction
+    save_chat_history()
+    
+    # Reset submission flag
+    st.session_state['submit_query'] = False
 
 # Add spacing before the input field
 # st.markdown("<div style='margin-bottom: 100px;'></div>", unsafe_allow_html=True)
