@@ -81,32 +81,31 @@ def get_user_stats():
     return user_count, question_count, answer_count
 
 def create_stats_chart():
-    """Create a bar chart with user statistics."""
-    # Get statistics
+    """Create a bar chart with user statistics (Interactions = max(questions, answers))."""
     user_count, question_count, answer_count = get_user_stats()
-    
-    # Create dataframe for the chart
+    interactions = max(question_count, answer_count)
+    answer_pct = (answer_count / interactions * 100) if interactions else 0
+
     data = pd.DataFrame({
-        'Category': ['Users', 'Questions', 'Answers'],
-        'Count': [user_count, question_count, answer_count]
+        'Category': ['Users', 'Interactions'],
+        'Count': [user_count, interactions],
+        'Extra': ['', f"{answer_pct:.1f}% answers"]
     })
-    
-    # Create the chart with automatic y-axis scaling
+
     chart = alt.Chart(data).mark_bar().encode(
         x=alt.X('Category', title=None),
         y=alt.Y('Count', title=None, axis=alt.Axis(format='d')),
         color=alt.Color('Category', legend=None, 
-                      scale=alt.Scale(domain=['Users', 'Questions', 'Answers'],
-                                    range=['#4C72B0', '#55A868', '#C44E52'])),
-        tooltip=['Category', 'Count']
+                      scale=alt.Scale(domain=['Users', 'Interactions'],
+                                    range=['#4C72B0', '#55A868'])),
+        tooltip=['Category', 'Count', alt.Tooltip('Extra', title='Answers %')]
     ).properties(
-        # title='Platform Statistics',
         height=200
     ).configure_title(
         fontSize=14,
         anchor='middle'
     )
-    
+
     return chart
 
 # Get username and token from URL parameter
@@ -447,11 +446,14 @@ st.markdown("""
 
 # Restore the statistics chart in the sidebar
 with st.sidebar.expander("📊 Platform Statistics", expanded=False):
-    try:
-        stats_chart = create_stats_chart()
-        st.altair_chart(stats_chart, use_container_width=True)
-    except Exception as e:
-        st.error(f"Could not display statistics: {str(e)}")
+    user_count, question_count, answer_count = get_user_stats()
+    st.markdown(
+        f"""
+        <b>Users:</b> {user_count}<br>
+        <b>Interactions:</b> {question_count}
+        """,
+        unsafe_allow_html=True
+    )
 
 # Add a separator
 st.sidebar.markdown("<hr style='margin: 15px 0px;'>", unsafe_allow_html=True)

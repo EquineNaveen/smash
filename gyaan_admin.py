@@ -112,7 +112,8 @@ st.markdown("""
         padding: 1.2rem;
         border-radius: 0.8rem;
         margin-bottom: 1.2rem;
-        max-width: 85%;
+        width: 100%;
+        box-sizing: border-box;
     }
     
     .user-message {
@@ -168,6 +169,13 @@ st.markdown("""
     
     .footer-logo {
         height: 40px;
+    }
+
+    /* Align text to the left for chat title buttons in the sidebar */
+    section[data-testid="stSidebar"] div[data-testid="stHorizontalBlock"] > div:nth-child(1) .stButton button {
+        text-align: left !important;
+        /* The button itself is often a flex container, so align its items (like the text label) to the start */
+        justify-content: flex-start !important; 
     }
     </style>
 """, unsafe_allow_html=True)
@@ -267,21 +275,24 @@ def get_user_stats():
     return user_count, question_count, answer_count
 
 def create_stats_chart():
-    """Create a bar chart with user statistics."""
+    """Create a bar chart with user statistics (Interactions = max(questions, answers))."""
     user_count, question_count, answer_count = get_user_stats()
+    interactions = max(question_count, answer_count)
+    answer_pct = (answer_count / interactions * 100) if interactions else 0
+
     data = pd.DataFrame({
-        'Category': ['Users', 'Questions', 'Answers'],
-        'Count': [user_count, question_count, answer_count]
+        'Category': ['Users', 'Interactions'],
+        'Count': [user_count, interactions],
+        'Extra': ['', f"{answer_pct:.1f}% answers"]
     })
     chart = alt.Chart(data).mark_bar().encode(
         x=alt.X('Category', title=None),
         y=alt.Y('Count:Q', title=None, axis=alt.Axis(format='d'), scale=alt.Scale(zero=True)),
         color=alt.Color('Category', legend=None, 
-                      scale=alt.Scale(domain=['Users', 'Questions', 'Answers'],
-                                    range=['#4C72B0', '#55A868', '#C44E52'])),
-        tooltip=['Category', 'Count']
+                      scale=alt.Scale(domain=['Users', 'Interactions'],
+                                    range=['#4C72B0', '#55A868'])),
+        tooltip=['Category', 'Count', alt.Tooltip('Extra', title='Answers %')]
     ).properties(
-        # title='Platform Statistics',
         height=200
     ).configure_title(
         fontSize=14,
@@ -299,14 +310,26 @@ if st.sidebar.button("Purchase"):
 # Add statistics chart to sidebar (move above chat history)
 st.sidebar.markdown("---")
 with st.sidebar.expander("📊 Platform Statistics", expanded=False):
-    st.altair_chart(create_stats_chart(), use_container_width=True)
+    user_count, question_count, answer_count = get_user_stats()
+    st.markdown(
+        f"""
+        <b>Users:</b> {user_count}<br>
+        <b>Interactions:</b> {question_count}
+        """,
+        unsafe_allow_html=True
+    )
 
 # Add chat history section to sidebar (move below statistics)
 st.sidebar.markdown("---")
-st.sidebar.title("Chat History")
+# Place "Chat History" and "New Chat" button on the same row
+chat_header_col1, chat_header_col2 = st.sidebar.columns([5, 1])
+with chat_header_col1:
+    st.markdown("<h3 style='margin-bottom:0.2rem;'>Chat History</h3>", unsafe_allow_html=True)
+with chat_header_col2:
+    st.button("➕", key="new_chat", help="New Chat", use_container_width=True)
 
-# New chat button
-if st.sidebar.button("New Chat", key="new_chat"):
+# New chat button logic (keep outside columns for correct behavior)
+if st.session_state.get("new_chat"):
     st.session_state['chat_history'] = []
     st.session_state['current_chat_id'] = ""
     st.rerun()
@@ -314,26 +337,20 @@ if st.sidebar.button("New Chat", key="new_chat"):
 # Load and display available chat histories
 chat_histories = load_chat_histories()
 if chat_histories:
-    st.sidebar.write("Previous chats:")
     for chat_file, chat_data in chat_histories:
         # Create a readable chat label
         chat_title = chat_data.get("first_query", "Untitled Chat")
         if len(chat_title) > 30:
             chat_title = chat_title[:27] + "..."
-            
-        chat_date = chat_data.get("timestamp", "")
-        if chat_date:
-            chat_date = chat_date.split()[0]  # Just show the date part
-            
-        # Display as a clickable button with a delete option
-        col1, col2 = st.sidebar.columns([4, 1])
-        with col1:
-            if st.button(f"{chat_title}\n{chat_date}", key=f"chat_{chat_file}"):
+        # Display as a clickable button with a delete option, aligned horizontally
+        chat_row_col1, chat_row_col2 = st.sidebar.columns([5, 1])
+        with chat_row_col1:
+            if st.button(f"{chat_title}", key=f"chat_{chat_file}", use_container_width=True):
                 st.session_state['chat_history'] = chat_data.get("messages", [])
                 st.session_state['current_chat_id'] = chat_file
                 st.rerun()
-        with col2:
-            if st.button("🗑️", key=f"del_{chat_file}"):
+        with chat_row_col2:
+            if st.button("✖", key=f"del_{chat_file}"):
                 delete_chat_history(chat_file)
                 if st.session_state['current_chat_id'] == chat_file:
                     st.session_state['chat_history'] = []
