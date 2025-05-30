@@ -3,14 +3,9 @@ import os
 from PIL import Image
 
 def main():
-    
-    # Create Gyaan coder button in sidebar
-    if st.sidebar.button("Gyaan coder"):
-        display_gyaan_coder()
+    display_gyaan_coder()
 
 def display_gyaan_coder():
-    # Display heading
-    st.title("Gyaan coder")
     
     # Display images from the coder folder
     images_path = os.path.join("rahul", "rahul", "coder")
