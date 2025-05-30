@@ -659,6 +659,11 @@ def handle_app_click(link):
         full_link = f"{link}{separator}user={username}&token={token}&ts={ts}"
         st.markdown(f'<meta http-equiv="refresh" content="0; url={full_link}">', unsafe_allow_html=True)
 
+# --- Handle Instruction Page Click (no login required) ---
+def handle_instruction_click(link):
+    # Directly open the link without login check
+    st.markdown(f'<meta http-equiv="refresh" content="0; url={link}">', unsafe_allow_html=True)
+
 # --- Sidebar ---
 with st.sidebar:
     # try:
@@ -675,15 +680,6 @@ with st.sidebar:
     if username:
         st.success(f"Logged in as: **{username}**")
         
-        # st.markdown("#### Quick Links")
-        # # Use HTML buttons for smooth scroll
-        # st.markdown("""
-        # <button onclick="window.scrollTo({top: document.getElementById('app-cards-section').getBoundingClientRect().top + window.scrollY - 20, behavior: 'smooth'});" style="background:none;border:none;color:#3B82F6;cursor:pointer;font-size:1em;text-align:left;width:100%;">📱 Apps</button>
-        # <button onclick="window.scrollTo({top: document.getElementById('about-gyaan-section').getBoundingClientRect().top + window.scrollY - 20, behavior: 'smooth'});" style="background:none;border:none;color:#3B82F6;cursor:pointer;font-size:1em;text-align:left;width:100%;">📄 About Gyaan</button>
-        # <button onclick="window.scrollTo({top: document.getElementById('faq-section').getBoundingClientRect().top + window.scrollY - 20, behavior: 'smooth'});" style="background:none;border:none;color:#3B82F6;cursor:pointer;font-size:1em;text-align:left;width:100%;">❓ FAQ</button>
-        # """, unsafe_allow_html=True)
-
-        # st.markdown("---")
         if st.button("Logout", use_container_width=True, key="sidebar_logout_btn"):
             handle_logout()
     else:
@@ -697,7 +693,7 @@ with st.sidebar:
     # --- All Apps List in Sidebar ---
     st.markdown("Instructions", unsafe_allow_html=True)
     sidebar_cards = [
-        {"name": "GYAAN CODER INSTRUCTIONS", "link": "http://10.21.4.25:8502"},
+        {"name": "GYAAN CODER INSTRUCTIONS", "internal": "coder_instruction.py"},
         {"name": "GYAAN DOC INSTRUCTIONS", "link": "http://10.21.4.25:8503"},
         {"name": "GYAAN MEETING INSTRUCTIONS", "link": "http://10.21.4.25:8504"},
         {"name": "GYAAN ADMIN INSTRUCTIONS", "link": "http://10.21.4.25:8505"},
@@ -706,11 +702,14 @@ with st.sidebar:
         {"name": "MEND", "link": "#"},
     ]
     for i, app in enumerate(sidebar_cards):
-        if app["link"] == "#":
+        if app.get("internal") == "coder_instruction.py":
+            if st.button(f"Open {app['name']}", key=f"sidebar_app_btn_{i}", use_container_width=True):
+                st.switch_page("coder_instruction.py")
+        elif app.get("link") == "#":
             st.markdown(f"<span style='color:#6B7280;'>• {app['name']} <span style='font-size:0.9em;'>(Coming Soon)</span></span>", unsafe_allow_html=True)
         else:
             if st.button(f"Open {app['name']}", key=f"sidebar_app_btn_{i}", use_container_width=True):
-                handle_app_click(app["link"])
+                handle_instruction_click(app["link"])
 
     st.markdown("---")
 
@@ -1590,6 +1589,11 @@ st.markdown(footer_html, unsafe_allow_html=True)
 #         separator = "&" if "?" in link else "?"
 #         full_link = f"{link}{separator}user={username}&token={token}&ts={ts}"
 #         st.markdown(f'<meta http-equiv="refresh" content="0; url={full_link}">', unsafe_allow_html=True)
+
+# # --- Handle Instruction Page Click (no login required) ---
+# def handle_instruction_click(link):
+#     # Directly open the link without login check
+#     st.markdown(f'<meta http-equiv="refresh" content="0; url={link}">', unsafe_allow_html=True)
 
 # # --- Main App Layout ---
 
