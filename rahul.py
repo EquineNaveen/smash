@@ -31,6 +31,7 @@ def display_gyaan_meeting():
                     img_path = os.path.join(images_path, image_files[0])
                     image = Image.open(img_path)
                     st.image(image, caption=image_files[0], use_container_width=True)
+                    st.markdown("enter the name of the meeting")
                 except Exception as e:
                     st.error(f"Error loading image {image_files[0]}: {e}")
             
@@ -39,6 +40,7 @@ def display_gyaan_meeting():
                     img_path = os.path.join(images_path, image_files[1])
                     image = Image.open(img_path)
                     st.image(image, caption=image_files[1], use_container_width=True)
+                    st.markdown("enter you name in the meeting")
                 except Exception as e:
                     st.error(f"Error loading image {image_files[1]}: {e}")
             
@@ -47,6 +49,7 @@ def display_gyaan_meeting():
                     img_path = os.path.join(images_path, image_files[2])
                     image = Image.open(img_path)
                     st.image(image, caption=image_files[2], use_container_width=True)
+                    st.markdown("click on three dots in the bottom and start recording")
                 except Exception as e:
                     st.error(f"Error loading image {image_files[2]}: {e}")
             
@@ -55,6 +58,7 @@ def display_gyaan_meeting():
                     img_path = os.path.join(images_path, image_files[3])
                     image = Image.open(img_path)
                     st.image(image, caption=image_files[3], use_container_width=True)
+                    st.markdown("select chrome tab")
                 except Exception as e:
                     st.error(f"Error loading image {image_files[3]}: {e}")
                     
@@ -62,7 +66,8 @@ def display_gyaan_meeting():
                 try:
                     img_path = os.path.join(images_path, image_files[4])
                     image = Image.open(img_path)
-                    st.image(image, caption=image_files[4], use_container_width=True)
+                    st.image(image, caption=image_files[4], use_container_width=True)  
+                    st.markdown("click on the share button")
                 except Exception as e:
                     st.error(f"Error loading image {image_files[4]}: {e}")
                     
@@ -71,6 +76,7 @@ def display_gyaan_meeting():
                     img_path = os.path.join(images_path, image_files[5])
                     image = Image.open(img_path)
                     st.image(image, caption=image_files[5], use_container_width=True)
+                    st.markdown("click on the start recording button")
                 except Exception as e:
                     st.error(f"Error loading image {image_files[5]}: {e}")
                     
@@ -79,6 +85,7 @@ def display_gyaan_meeting():
                     img_path = os.path.join(images_path, image_files[6])
                     image = Image.open(img_path)
                     st.image(image, caption=image_files[6], use_container_width=True)
+                    st.markdown("recording has started")
                 except Exception as e:
                     st.error(f"Error loading image {image_files[6]}: {e}")
                     
@@ -87,6 +94,7 @@ def display_gyaan_meeting():
                     img_path = os.path.join(images_path, image_files[7])
                     image = Image.open(img_path)
                     st.image(image, caption=image_files[7], use_container_width=True)
+                    st.markdown("click on the stop recording button")
                 except Exception as e:
                     st.error(f"Error loading image {image_files[7]}: {e}")
                     
@@ -95,6 +103,7 @@ def display_gyaan_meeting():
                     img_path = os.path.join(images_path, image_files[8])
                     image = Image.open(img_path)
                     st.image(image, caption=image_files[8], use_container_width=True)
+                    st.markdown("save the recording in the preferred location")
                 except Exception as e:
                     st.error(f"Error loading image {image_files[8]}: {e}")
             
