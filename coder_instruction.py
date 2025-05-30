@@ -30,7 +30,7 @@ def display_gyaan_meeting():
                 try:
                     img_path = os.path.join(images_path, image_files[1])
                     image = Image.open(img_path)
-                    st.image(image, caption=image_files[1], use_container_width=True)
+                    st.image(image, use_container_width=True)
                     st.subheader("Navigate to the Gyaan Coder Option on the Home Page Interface")
                 except Exception as e:
                     st.error(f"Error loading image {image_files[1]}: {e}")
@@ -39,7 +39,7 @@ def display_gyaan_meeting():
                 try:
                     img_path = os.path.join(images_path, image_files[0])
                     image = Image.open(img_path)
-                    st.image(image, caption=image_files[0], use_container_width=True)
+                    st.image(image, use_container_width=True)
                     st.subheader("Input Your Technical Query in the Designated Search Field and Submit to Receive Appropriate Code Solutions or Troubleshooting Assistance")
                 except Exception as e:
                     st.error(f"Error loading image {image_files[0]}: {e}")
