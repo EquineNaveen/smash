@@ -1,0 +1,48 @@
+import streamlit as st
+import os
+from PIL import Image
+
+def main():
+    # Create sidebar
+    st.sidebar.title("Navigation")
+    
+    # Create Gyaan Meeting button in sidebar
+    if st.sidebar.button("Gyaan coder"):
+        display_gyaan_meeting()
+
+def display_gyaan_meeting():
+    # Display heading
+    st.title("Gyaan Meeting")
+    
+    # Display images from the meeting folder
+    images_path = os.path.join("rahul", "rahul", "coder")
+    
+    # Check if directory exists
+    if os.path.exists(images_path):
+        image_files = [f for f in os.listdir(images_path) 
+                      if f.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))]
+        
+        if image_files:
+            st.subheader("Meeting Images")
+            
+            # Display images individually instead of using a for loop
+            if len(image_files) > 0:
+                try:
+                    img_path = os.path.join(images_path, image_files[1])
+                    image = Image.open(img_path)
+                    st.image(image, caption=image_files[1], use_container_width=True)
+                    st.subheader("Navigate to the Gyaan Coder Option on the Home Page Interface")
+                except Exception as e:
+                    st.error(f"Error loading image {image_files[1]}: {e}")
+            
+            if len(image_files) > 1:
+                try:
+                    img_path = os.path.join(images_path, image_files[0])
+                    image = Image.open(img_path)
+                    st.image(image, caption=image_files[0], use_container_width=True)
+                    st.subheader("Input Your Technical Query in the Designated Search Field and Submit to Receive Appropriate Code Solutions or Troubleshooting Assistance")
+                except Exception as e:
+                    st.error(f"Error loading image {image_files[0]}: {e}")
+
+if __name__ == "__main__":
+    main()
