@@ -25,7 +25,7 @@ def display_gyaan_coder():
                     image = Image.open(img_path)
                     # Display image without columns, auto-fit to page width
                     st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
-                    st.image(image, use_column_width=True)
+                    st.image(image, use_container_width=True)
                     st.markdown("</div>", unsafe_allow_html=True)
                     # Center align the subheader using HTML with normal sentence case
                     st.markdown("<h3 style='text-align: center;'>Navigate to the Gyaan Coder option on the home page interface</h3>", unsafe_allow_html=True)
@@ -38,7 +38,7 @@ def display_gyaan_coder():
                     image = Image.open(img_path)
                     # Display image without columns, auto-fit to page width
                     st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
-                    st.image(image, use_column_width=True)
+                    st.image(image, use_container_width=True)
                     st.markdown("</div>", unsafe_allow_html=True)
                     # Center align the subheader using HTML with normal sentence case
                     st.markdown("<h3 style='text-align: center;'>Input your technical query in the designated search field and submit to receive appropriate code solutions or troubleshooting assistance</h3>", unsafe_allow_html=True)
