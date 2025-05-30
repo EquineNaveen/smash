@@ -701,7 +701,6 @@ with st.sidebar:
         {"name": "GYAAN DOC", "link": "http://10.21.4.25:8503"},
         {"name": "GYAAN MEETING", "link": "http://10.21.4.25:8504"},
         {"name": "GYAAN ADMIN", "link": "http://10.21.4.25:8505"},
-        {"name": "GYAAN JITSI", "link": "https://gyaanjitsi.ursc.dos.gov.in"},
         {"name": "ELSIS", "link": "#"},
         {"name": "Medical AI Doctor in Space", "link": "#"},
         {"name": "MEND", "link": "#"},
