@@ -695,13 +695,13 @@ with st.sidebar:
         
     st.markdown("---")
     # --- All Apps List in Sidebar ---
-    st.markdown("#### All Apps", unsafe_allow_html=True)
+    st.markdown("Instructions", unsafe_allow_html=True)
     sidebar_cards = [
-        {"name": "GYAAN CODER", "link": "http://10.21.4.25:8502"},
-        {"name": "GYAAN DOC", "link": "http://10.21.4.25:8503"},
-        {"name": "GYAAN MEETING", "link": "http://10.21.4.25:8504"},
-        {"name": "GYAAN ADMIN", "link": "http://10.21.4.25:8505"},
-        {"name": "ELSIS", "link": "#"},
+        {"name": "GYAAN CODER INSTRUCTIONS", "link": "http://10.21.4.25:8502"},
+        {"name": "GYAAN DOC INSTRUCTIONS", "link": "http://10.21.4.25:8503"},
+        {"name": "GYAAN MEETING INSTRUCTIONS", "link": "http://10.21.4.25:8504"},
+        {"name": "GYAAN ADMIN INSTRUCTIONS", "link": "http://10.21.4.25:8505"},
+        {"name": "ELSIS ", "link": "#"},
         {"name": "Medical AI Doctor in Space", "link": "#"},
         {"name": "MEND", "link": "#"},
     ]
