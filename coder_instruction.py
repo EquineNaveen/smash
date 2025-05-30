@@ -8,11 +8,11 @@ def main():
     
     # Create Gyaan Meeting button in sidebar
     if st.sidebar.button("Gyaan coder"):
-        display_gyaan_meeting()
+        display_gyaan_coder()
 
-def display_gyaan_meeting():
+def display_gyaan_coder():
     # Display heading
-    st.title("Gyaan Meeting")
+    st.title("Gyaan coder")
     
     # Display images from the meeting folder
     images_path = os.path.join("rahul", "rahul", "coder")
