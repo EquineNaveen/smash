@@ -1,0 +1,12 @@
+{
+  "faqs": [
+    {
+      "question": "What is Gyaan Apps?",
+      "answer": "Gyaan Apps is a comprehensive suite of AI-powered applications designed to enhance productivity and streamline various tasks."
+    }
+  ],
+  "about": {
+    "title": "About Gyaan",
+    "content": "Gyaan is an innovative AI-powered platform developed by Team GYAAN."
+  }
+}
