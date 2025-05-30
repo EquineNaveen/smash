@@ -3,10 +3,8 @@ import os
 from PIL import Image
 
 def main():
-    # Create sidebar
-    st.sidebar.title("Navigation")
     
-    # Create Gyaan Meeting button in sidebar
+    # Create Gyaan coder button in sidebar
     if st.sidebar.button("Gyaan coder"):
         display_gyaan_coder()
 
@@ -14,7 +12,7 @@ def display_gyaan_coder():
     # Display heading
     st.title("Gyaan coder")
     
-    # Display images from the meeting folder
+    # Display images from the coder folder
     images_path = os.path.join("rahul", "rahul", "coder")
     
     # Check if directory exists
@@ -23,7 +21,7 @@ def display_gyaan_coder():
                       if f.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))]
         
         if image_files:
-            st.subheader("Meeting Images")
+            st.subheader("coder Images")
             
             # Display images individually instead of using a for loop
             if len(image_files) > 0:
