@@ -31,7 +31,7 @@ def display_gyaan_meeting():
                     img_path = os.path.join(images_path, image_files[0])
                     image = Image.open(img_path)
                     st.image(image, caption=image_files[0], use_container_width=True)
-                    st.subheader("enter the name of the meeting")
+                    st.subheader("Input the Official Meeting Designation")
                 except Exception as e:
                     st.error(f"Error loading image {image_files[0]}: {e}")
             
@@ -40,7 +40,7 @@ def display_gyaan_meeting():
                     img_path = os.path.join(images_path, image_files[1])
                     image = Image.open(img_path)
                     st.image(image, caption=image_files[1], use_container_width=True)
-                    st.subheader("enter you name in the meeting")
+                    st.subheader("Please Enter Your Full Name in the Meeting Interface")
                 except Exception as e:
                     st.error(f"Error loading image {image_files[1]}: {e}")
             
@@ -49,7 +49,7 @@ def display_gyaan_meeting():
                     img_path = os.path.join(images_path, image_files[2])
                     image = Image.open(img_path)
                     st.image(image, caption=image_files[2], use_container_width=True)
-                    st.subheader("click on three dots in the bottom and start recording")
+                    st.subheader("Navigate to the Options Menu (Three Dots) and Select Record")
                 except Exception as e:
                     st.error(f"Error loading image {image_files[2]}: {e}")
             
@@ -58,7 +58,7 @@ def display_gyaan_meeting():
                     img_path = os.path.join(images_path, image_files[3])
                     image = Image.open(img_path)
                     st.image(image, caption=image_files[3], use_container_width=True)
-                    st.subheader("select chrome tab")
+                    st.subheader("Select the Chrome Browser Tab for Content Sharing")
                 except Exception as e:
                     st.error(f"Error loading image {image_files[3]}: {e}")
                     
@@ -67,7 +67,7 @@ def display_gyaan_meeting():
                     img_path = os.path.join(images_path, image_files[4])
                     image = Image.open(img_path)
                     st.image(image, caption=image_files[4], use_container_width=True)  
-                    st.subheader("click on the share button")
+                    st.subheader("Activate the Share Functionality via the Designated Button")
                 except Exception as e:
                     st.error(f"Error loading image {image_files[4]}: {e}")
                     
@@ -76,7 +76,7 @@ def display_gyaan_meeting():
                     img_path = os.path.join(images_path, image_files[5])
                     image = Image.open(img_path)
                     st.image(image, caption=image_files[5], use_container_width=True)
-                    st.subheader("click on the start recording button")
+                    st.subheader("Initiate the Recording Process with the Record Button")
                 except Exception as e:
                     st.error(f"Error loading image {image_files[5]}: {e}")
                     
@@ -85,7 +85,7 @@ def display_gyaan_meeting():
                     img_path = os.path.join(images_path, image_files[6])
                     image = Image.open(img_path)
                     st.image(image, caption=image_files[6], use_container_width=True)
-                    st.subheader("recording has started")
+                    st.subheader("Recording Process Successfully Initiated")
                 except Exception as e:
                     st.error(f"Error loading image {image_files[6]}: {e}")
                     
@@ -94,7 +94,7 @@ def display_gyaan_meeting():
                     img_path = os.path.join(images_path, image_files[7])
                     image = Image.open(img_path)
                     st.image(image, caption=image_files[7], use_container_width=True)
-                    st.subheader("click on the stop recording button")
+                    st.subheader("Conclude the Recording Session via the Stop Button")
                 except Exception as e:
                     st.error(f"Error loading image {image_files[7]}: {e}")
                     
@@ -103,7 +103,7 @@ def display_gyaan_meeting():
                     img_path = os.path.join(images_path, image_files[8])
                     image = Image.open(img_path)
                     st.image(image, caption=image_files[8], use_container_width=True)
-                    st.subheader("save the recording in the preferred location")
+                    st.subheader("Archive the Recording in Your Designated Storage Location")
                 except Exception as e:
                     st.error(f"Error loading image {image_files[8]}: {e}")
             
