@@ -6,7 +6,18 @@ def main():
     display_gyaan_coder()
 
 def display_gyaan_coder():
-
+    st.markdown("""
+    <style>
+    [data-testid="stSidebar"] {display: none !important;}
+    /* Hide default Streamlit sidebar navigation */
+    div[data-testid="stSidebarNav"] {
+        display: none;
+    }
+    /* Hide sidebar collapse/expand button and its parent container */
+    button[data-testid="stBaseButton-headerNoPadding"] {display: none !important;}
+    div.st-emotion-cache-1y9tyez.eczjsme4 {display: none !important;}
+    </style>
+    """, unsafe_allow_html=True)
 
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     images_path = os.path.join(project_root, "artifacts", "coder")

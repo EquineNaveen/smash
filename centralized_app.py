@@ -32,11 +32,13 @@ if "show_signup" not in st.session_state:
 if "show_forgot_password" not in st.session_state:
     st.session_state["show_forgot_password"] = False
 
+
+
 # Hide sidebar, sidebar nav, sidebar arrow SVG, and sidebar collapse button
 st.markdown("""
     <style>
     /* [data-testid="stSidebar"] {display: none !important;} */ /* Ensure sidebar is visible */
-    /* div[data-testid="stSidebarNav"] {display: none !important;} */ /* Ensure sidebar nav is visible */
+    div[data-testid="stSidebarNav"] {display: none !important;} /* Hide sidebar navigation */
     /* Hide sidebar arrow SVG by class and tag */
     /* svg.eyeqlp53.st-emotion-cache-1f3w014 {display: none !important;} */ /* Ensure sidebar arrow is visible */
     /* Fallback: hide any SVG inside sidebar nav */
@@ -44,7 +46,7 @@ st.markdown("""
     /* Hide sidebar collapse/expand button */
     /* button[data-testid="stBaseButton-headerNoPadding"] {display: none !important;} */ /* Ensure collapse button is visible */
     </style>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
 # --- Inject Custom CSS ---
 st.markdown("""
@@ -1791,5 +1793,3 @@ st.markdown(footer_html, unsafe_allow_html=True)
 #                 st.write(faq['answer'])
 #     else:
 #         st.info("No FAQs available at the moment.")
-
-#
