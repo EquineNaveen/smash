@@ -697,20 +697,29 @@ with st.sidebar:
     
     # Add instruction buttons
     st.markdown("### Instructions")
-    if st.button("Gyaan Coder Instructions", use_container_width=True):
-        st.switch_page("pages/coder_instruction.py")
     
-    if st.button("Gyaan Doc Instructions", use_container_width=True):
-        st.switch_page("pages/doc_instruction.py")
-    
-    if st.button("Gyaan Meeting Instructions", use_container_width=True):
-        st.switch_page("pages/meeting_instruction.py")
-    
-    if st.button("Gyaan Admin Instructions", use_container_width=True):
-        st.switch_page("pages/admin_instruction.py")
-    
-    if st.button("Login or Signup Instructions", use_container_width=True):
-        st.switch_page("pages/login_signup.py")
+    # Replace links to .py files with links to proper routes
+    st.markdown("""
+        <a href="/coder_instruction" target="_blank" style="display:block; text-align:center; background:#3B82F6; color:white; padding:10px 0; border-radius:6px; text-decoration:none; font-weight:500; margin-top:8px; width:100%;">
+            Gyaan Coder Instructions
+        </a>
+        
+        <a href="/doc_instruction" target="_blank" style="display:block; text-align:center; background:#3B82F6; color:white; padding:10px 0; border-radius:6px; text-decoration:none; font-weight:500; margin-top:8px; width:100%;">
+            Gyaan Doc Instructions
+        </a>
+        
+        <a href="/meeting_instruction" target="_blank" style="display:block; text-align:center; background:#3B82F6; color:white; padding:10px 0; border-radius:6px; text-decoration:none; font-weight:500; margin-top:8px; width:100%;">
+            Gyaan Meeting Instructions
+        </a>
+        
+        <a href="/admin_instruction" target="_blank" style="display:block; text-align:center; background:#3B82F6; color:white; padding:10px 0; border-radius:6px; text-decoration:none; font-weight:500; margin-top:8px; width:100%;">
+            Gyaan Admin Instructions
+        </a>
+        
+        <a href="/login_signup" target="_blank" style="display:block; text-align:center; background:#3B82F6; color:white; padding:10px 0; border-radius:6px; text-decoration:none; font-weight:500; margin-top:8px; width:100%;">
+            Login or Signup Instructions
+        </a>
+    """, unsafe_allow_html=True)
 
     # Inject JS to allow scrolling to anchors
     st.markdown("""
@@ -1783,9 +1792,4 @@ st.markdown(footer_html, unsafe_allow_html=True)
 #     else:
 #         st.info("No FAQs available at the moment.")
 
-# # Footer
-# st.markdown("""
-# <div class="footer">
-#     <div class="footer-text">🚀 Built by Team GYAAN</div>
-# </div>
-# """, unsafe_allow_html=True)
+#
