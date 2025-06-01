@@ -45,7 +45,7 @@ def display_gyaan_coder():
             st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
             st.image(image, use_column_width=True)  
             st.markdown("</div>", unsafe_allow_html=True)
-            st.markdown("<h3 style='text-align: center;'>Navigate to the Gyaan Coder button on the home page.</h3>", unsafe_allow_html=True)
+            st.markdown("<h3 style='text-align: center;'>To open Gyaan Coder click on button 'Open Gyaan Coder' on the home page.</h3>", unsafe_allow_html=True)
         except Exception as e:
             st.error(f"Error loading image {image_files[1]}: {e}")
 
